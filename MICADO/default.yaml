@@ -13,6 +13,7 @@ changes:
   - 2025-06-27 (FH) add needs_scopesim keyword
   - 2025-10-09 (OC) proper MJD value
   - 2025-10-17 (JB) add parametes for FITS keywords, tplstart as MJD
+  - 2026-01-02 (OC) random seed to None
 
 packages:
 - Armazones
@@ -217,12 +218,12 @@ mode_yamls :
 ### default simulation parameters needed for a MICADO simulation
 object : simulation
 alias : SIM
-name : MICADO_simulation_paramters
-description : RC simulation paramters which need to change for a MICADO run
+name : MICADO_simulation_parameters
+description : RC simulation parameters which need to change for a MICADO run
 
 properties :
   random :
-    seed : 9001
+    seed : None                 # 9001
 
   spectral :
     wave_min : 0.7

@@ -76,12 +76,12 @@ mode_yamls :
 ### default simulation parameters needed for a MICADO simulation
 object : simulation
 alias : SIM
-name : MICADO_sci_simulation_paramters
-description : RC simulation paramters which need to change for a MICADO-Sci run
+name : MICADO_sci_simulation_parameters
+description : RC simulation parameters that need to change for a MICADO-Sci run
 
 properties :
   random :
-    seed : 9001
+    seed : None                  # 9001
 
   spectral :
     wave_min : 0.7

@@ -53,12 +53,12 @@ mode_yamls:
 ---
 object: simulation
 alias: SIM
-name: WFC3_simulation_paramters
-description: RC simulation paramters which need to change for a WFC3
+name: WFC3_simulation_parameters
+description: RC simulation parameters that need to change for a WFC3
 
 properties:
   random:
-    seed: 9001
+    seed: None         # 9001
 
   spectral:
     wave_min: 0.8
