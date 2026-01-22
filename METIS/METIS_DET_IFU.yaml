@@ -4,11 +4,12 @@ object: detector
 alias: DET
 name: metis_lms_detector_array
 description: A set of 4 H2RG detectors
-date_modified: 2025-06-16
+date_modified: 2026-01-22
 changes:
   - 2021-12-16 (OC) some rearrangements
   - 2024-10-11 (OC) add ADConversion, gain from B.Serra (2024-10-09)
   - 2025-06-16 (OC) rename SummedExposure to ExposureIntegration
+  - 2026-01-22 (OC) swap dets 1 and 2 as in the layout
 
 properties:
   image_plane_id: 0
@@ -31,8 +32,8 @@ properties:
   linearity:
     file_name: "FPA_linearity_HxRG.dat"
   border:
-    1: [32, 0, 32, 64]
-    2: [32, 64, 32, 0]
+    1: [32, 64, 32, 0]
+    2: [32, 0, 32, 64]
     3: [32, 64, 32, 0]
     4: [32, 0, 32, 64]
 
