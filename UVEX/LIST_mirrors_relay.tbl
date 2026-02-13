@@ -1,0 +1,16 @@
+# author : Evangela Shread
+# source : 
+# date_created : 2026-02-11
+# date_modified : 
+# outer_unit: m
+# inner_unit: m
+# angle_unit: degree
+# status : development
+# type : mirror:list
+# changes :
+# - 2026-02-11 (ES) Created the file
+#
+name     outer  inner  angle  temperature  action      filename
+SM1       0.23    0.     0.     0.         reflection  mirror_reflectivity.dat
+SM2       0.13    0.     0.     0.         reflection  mirror_reflectivity.dat
+SM3       0.32    0.     0.     0.         reflection  mirror_reflectivity.dat

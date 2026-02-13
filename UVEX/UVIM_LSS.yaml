@@ -1,1 +1,59 @@
+object: instrument
+alias: INST
+name: LSS
+description: base configuration for UVIM LSS
 
+properties:
+  pixel_scale: 0.80  # arcsec / pixel
+  plate_scale: 80   # arcsec / mm
+  decouple_detector_from_sky_headers: True # unsure if this is needed
+
+effects:
+  - name: grating_efficiency 
+    description: grating efficiency
+    class: SpectralEfficiency
+    kwargs:
+      filename: "UVIM_LSS_spectral_efficiency.fits"
+
+  - name: slit_geometry
+    description: slit geometry on the focal plane
+    class: ApertureMask
+    kwargs:
+      filename: "UVIM_LSS_slit_geometry.dat"
+
+  - name : surfaces
+    description : surfaces list for the spectroscopy mode
+    class : SurfaceList
+    kwargs :
+        filename : "LIST_surfaces_LSS.tbl"
+
+  - name: psf
+    description: PSF on the detector (for now ignoring the slit PSF)
+    class: SeeingPSF # simple Gaussian PSF
+    kwargs:
+      fwhm: 2
+      fwhm_unit: arcsec
+
+  - name: spectral_traces 
+    description: spectral trace geometry on the focal plane
+    class: SpectralTraceList
+    kwargs:
+      filename: "UVIM_LSS_spectral_trace.fits"
+
+# default simulation parameters needed for a UVEX LSS simulation
+object: simulation
+alias: SIM
+name: LSS
+description: simulation parameters which need to change for a UVEX LSS run
+
+properties:
+  spectral:
+    spectral_bin_width: 8.2e-5  # microns, estimate from ETC
+    spectral_resolution: 3000  # estimate, actually varies with wavelength
+
+object: observation
+alias : OBS
+name : LSS
+
+properties :
+    obs_mode: "LSS"

@@ -1,0 +1,11 @@
+# author : Evangela Shread
+# source : 
+# date_created : 2026-02-11
+# date_modified : 
+# status : development
+# type : mirror:list
+# changes :
+# - 2026-02-11 (ES) Created the file
+#
+name           action          filename
+LSS_Filter     transmission    filters/UVIM_LSS_filter_response.dat
