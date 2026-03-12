@@ -8,13 +8,13 @@ class LSSInputs:
         self.slit_length = 1.*u.deg
         self.slit_width = 2.*u.arcsec
         self.y_0 = 0.*u.deg
-        self.x_0 = 0.*u.deg # actually at 3.5*u.deg according to ETC
+        self.x_0 = 0.*u.deg 
         self.pixel_scale = 0.80*u.arcsec
         self.plate_scale = 80.*u.arcsec/u.mm
         self.gap_size = 100 # in pixels, haven't done anything with this yet
         self.num_pixels = 4096 # in spatial direction
-        self.inputs_dir = os.path.abspath(os.path.join(os.path.dirname(__name__), "irdb/UVEX/code/inputs/"))
-        self.outputs_dir = os.path.abspath(os.path.join(os.path.dirname(__name__), "irdb/UVEX/code/"))
+        self.inputs_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "inputs/"))
+        self.outputs_dir = os.path.abspath(os.path.dirname(__file__))
     
     def make_spectral_efficiency(self, infile="1150_3550_1000_4p3_1420.txt", outfile="UVIM_LSS_spectral_efficiency.fits"):
         # first convert the spectral efficiency file to fits file
@@ -91,17 +91,17 @@ class LSSInputs:
         slit_s_min = np.min(slit_coords[:,spatial_col]) # in arcsec
         slit_s_max = np.max(slit_coords[:,spatial_col]) # in arcsec
         slit_s_center = (slit_s_min + slit_s_max) / 2 
-
+        
         # assume the slit is centered on detector, so 2048 pixels in each direction
-        s_min = -self.num_pixels/2 * self.pixel_scale + slit_s_center # in arcsec
-        s_max = self.num_pixels/2 * self.pixel_scale + slit_s_center # in arcsec
-        x_det_min = s_min / self.plate_scale # in mm
-        x_det_max = s_max / self.plate_scale # in mm
+        s_min = -self.num_pixels/2 * self.pixel_scale.value + slit_s_center # in arcsec
+        s_max = self.num_pixels/2 * self.pixel_scale.value + slit_s_center # in arcsec
+        x_det_min = s_min / self.plate_scale.value # in mm
+        x_det_max = s_max / self.plate_scale.value # in mm
 
         # for a long-slit spectrograph, each position in the slit creates a vertical trace
         # this means we effectively have a grid of traces
-        s_positions = np.linspace(s_min.value, s_max.value, n_slit_positions) # in arcsec
-        x_positions = np.linspace(x_det_min.value, x_det_max.value, n_slit_positions) # in mm
+        s_positions = np.linspace(s_min, s_max, n_slit_positions) # in arcsec
+        x_positions = np.linspace(x_det_min, x_det_max, n_slit_positions) # in mm
         
         # grid w/ N_slit_positions * N_wavelengths rows
         # y varies with wavelength, but s and x do not
@@ -183,12 +183,66 @@ class LSSInputs:
                 f.write("wavelength    dispersion\n")
                 for wl, d in zip(wavelength, dispersion):
                     f.write(f"{wl.value}    {d.value}\n")
+                    
+class NUVInputs:
+    def __init__(self):
+        self.pixel_scale = 1.03 * u.arcsec
+        self.plate_scale = 103.0 * u.arcsec / u.mm
+        self.inputs_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "inputs/"))
+        self.outputs_dir = os.path.abspath(os.path.dirname(__file__))
+        
+    def make_qe_curve(self, infile="nuv_qe_Hf02.csv", outfile="UVIM_NUV_QE.dat"):
+        data = np.loadtxt(os.path.join(self.inputs_dir, infile), delimiter=',', skiprows=4, unpack=True)
+        wavelength = data[0] * u.nm
+        qe = data[3] # already a fraction
+        wavelength = wavelength.to(u.um) # convert to microns
 
+        if not os.path.exists(os.path.join(self.outputs_dir, outfile)):
+            with open(os.path.join(self.outputs_dir, outfile), 'w') as f:
+                f.write("# wavelength_unit: um\n")
+                f.write("wavelength    transmission\n")
+                for wl, q in zip(wavelength, qe):
+                    f.write(f"{wl.value}    {q}\n")
+        else:
+            outfile_new = outfile.replace(".dat", "_new.dat")
+            with open(os.path.join(self.outputs_dir, outfile_new), 'w') as f:
+                f.write("# wavelength_unit: um\n")
+                f.write("wavelength    transmission\n")
+                for wl, q in zip(wavelength, qe):
+                    f.write(f"{wl.value}    {q}\n")
+    
+    def make_dichroic_response(self, infile="dichroic_bandpass.csv", outfile="UVIM_dichroic_response.dat"):
+        # Note: this same file should be used for the FUV surfaces list, too
+        data = np.loadtxt(os.path.join(self.inputs_dir, infile), delimiter=',', skiprows=4, unpack=True)
+        wavelength = data[0] * u.nm
+        wavelength = wavelength.to(u.um) # convert to microns
+        reflection = data[1]
+        transmission = data[2] # already a fraction
+        
+        if not os.path.exists(os.path.join(self.outputs_dir, outfile)):
+            with open(os.path.join(self.outputs_dir, outfile), 'w') as f:
+                f.write("# wavelength_unit: um\n")
+                f.write("wavelength    reflection    transmission\n")
+                for wl, re, tr in zip(wavelength, reflection, transmission):
+                    f.write(f"{wl.value}    {re}    {tr}\n")
+        else:
+            outfile_new = outfile.replace(".dat", "_new.dat")
+            with open(os.path.join(self.outputs_dir, outfile_new), 'w') as f:
+                f.write("# wavelength_unit: um\n")
+                f.write("wavelength    reflection    transmission\n")
+                for wl, re, tr in zip(wavelength, reflection, transmission):
+                    f.write(f"{wl.value}    {re}    {tr}\n")
+        
 if __name__ == "__main__":
     # run python3 make_LSS_inputs.py from command line
+    
     lss_inputs = LSSInputs()
     lss_inputs.make_spectral_efficiency()
     lss_inputs.make_slit_geometry()
     lss_inputs.make_spectral_trace()
     lss_inputs.make_filter_response()
     lss_inputs.make_dispersion_file()
+    
+    nuv_inputs = NUVInputs()
+    nuv_inputs.make_qe_curve()
+    nuv_inputs.make_dichroic_response()

@@ -15,14 +15,14 @@ effects:
     include: True
     kwargs:
       array_dict:
-        id: [1]
-        pixsize: [0.01] # 10 microns / pix
-        angle: [0.]
-        gain: [1.2]
-        x_cen: [0]
-        y_cen: [0]
-        x_size: [40.96]
-        y_size: [81.92]
+        id: [1, 2]
+        pixsize: [0.01, 0.01] # 10 microns / pix
+        angle: [0., 0.]
+        gain: [1.2, 1.2]
+        x_cen: [0., 0.]
+        y_cen: [36.086, -5.874] # two detectors oriented along the spectral direction
+        x_size: [40.96, 40.96]
+        y_size: [40.96, 40.96]
       x_cen_unit: mm
       y_cen_unit: mm
       x_size_unit: mm
@@ -44,9 +44,9 @@ effects:
 #    kwargs:
 #      filename: tbd.dat
 
-#  - name: shot_noise
-#    description: apply poisson shot noise to images
-#    class: ShotNoise
+  - name: shot_noise
+    description: apply poisson shot noise to images
+    class: ShotNoise
 
   - name: readout_noise
     description: Readout noise frames
