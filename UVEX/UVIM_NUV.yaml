@@ -9,7 +9,7 @@ properties:
 
 effects:
   - name: nuv_surfaces
-    description: surfaces list for NUV imaging
+    description: surfaces list for NUV imaging, including the filter and dichroic transmission
     class: SurfaceList
     kwargs:
       filename: LIST_surfaces_NUV.tbl
@@ -20,3 +20,8 @@ effects:
       fwhm: 2
       fwhm_unit: arcsec
 
+  - name: qe_curve
+    description: Quantum efficiency curve for the NUV detector
+    class: QuantumEfficiencyCurve
+    kwargs:
+        filename: UVIM_NUV_QE.dat

@@ -6,6 +6,8 @@
 # type : mirror:list
 # changes :
 # - 2026-01-28 (HE) Created the file
-#
-name           action          filename
-NUV_Filter     transmission    filters/Materion-NUV-Design-%T.dat
+# - 2026-03-06 (ES) Added dichroic transmission
+
+name             action          filename
+NUV_Filter       transmission    filters/Materion-NUV-Design-%T.dat
+Dichroic         transmission    UVIM_dichroic_response.dat
