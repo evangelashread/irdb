@@ -1,3 +1,5 @@
+# date_modified : 2026-03-23
+# orig_filename: dichroic_bandpass.csv
 # wavelength_unit: um
 wavelength    reflection    transmission
 0.1205    0.111766    0.0

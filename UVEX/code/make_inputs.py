@@ -69,6 +69,7 @@ class UVEXInputs:
         hdu0.header["ECAT"] = 1
         hdu0.header["EDATA"] = 2
         hdu0.header["DATE"] = np.datetime64('today', 'D').astype(str)
+        hdu0.header["ORIGFILE"] = infile
         hdu1 = fits.BinTableHDU.from_columns(
             [fits.Column(name="description", format="20A", array=["UVIM_LSS_trace"]),
             fits.Column(name="extension_id", format="I", array=[2])]
@@ -97,6 +98,7 @@ class UVEXInputs:
                                 [x_0 - slit_length/2, y_0 + slit_width/2]])
         # write to dat file (allow overwrite)
         with open(os.path.join(self.outputs_dir, outfile), 'w') as f:
+            f.write(f"# date_modified : {np.datetime64('today', 'D').astype(str)}\n")
             f.write("# x_unit : arcsec\n")
             f.write("# y_unit : arcsec\n")
             f.write("x    y\n")
@@ -113,7 +115,7 @@ class UVEXInputs:
         wavelength = wavelength.to(u.um) # convert to microns
 
         # get slit geometry in spatial direction for centering the trace
-        slit_coords = np.loadtxt(os.path.join(self.outputs_dir, slit_geometry), skiprows=3)
+        slit_coords = np.loadtxt(os.path.join(self.outputs_dir, slit_geometry), skiprows=4)
         # Determine which direction is spatial (longer dimension)
         x_extent = abs(slit_coords[:,0].max() - slit_coords[:,0].min()) * u.arcsec
         y_extent = abs(slit_coords[:,1].max() - slit_coords[:,1].min()) * u.arcsec
@@ -143,6 +145,8 @@ class UVEXInputs:
         hdu0 = fits.PrimaryHDU()
         hdu0.header["ECAT"] = 1
         hdu0.header["EDATA"] = 2
+        hdu0.header["DATE"] = np.datetime64('today', 'D').astype(str)
+        hdu0.header["ORIGFILE"] = infile
         hdu1 = fits.BinTableHDU.from_columns(
             [fits.Column(name="description", format="20A", array=["UVIM_LSS_trace"]),
             fits.Column(name="extension_id", format="I", array=[2]),
@@ -173,10 +177,12 @@ class UVEXInputs:
         transmission = data[1] / 100.0 # convert from percentage to fraction
 
         with open(os.path.join(self.outputs_dir, outfile), 'w') as f:
+            f.write(f"# date_modified : {np.datetime64('today', 'D').astype(str)}\n")
+            f.write(f"# orig_filename: {infile}\n")
             f.write("# wavelength_unit: nm\n")
             f.write("wavelength    transmission\n")
             for wl, trans in zip(wavelength, transmission):
-                f.write(f"{wl.value}    {trans}\n")
+                f.write(f"{wl.value}    {trans:.6f}\n")
                     
     def make_dispersion_file(self, infile="UVEXS_Spectral_Resolution_R2000.txt", outfile="UVIM_LSS_dispersion.dat"):
         data = np.loadtxt(os.path.join(self.inputs_dir, infile), skiprows=2, unpack=True)
@@ -187,11 +193,13 @@ class UVEXInputs:
 
         # write to dat file (allow overwrite)
         with open(os.path.join(self.outputs_dir, outfile), 'w') as f:
+            f.write(f"# date_modified : {np.datetime64('today', 'D').astype(str)}\n")
+            f.write(f"# orig_filename: {infile}\n")
             f.write("# wavelength_unit: um\n")
             f.write("# dispersion_unit: um\n")
             f.write("wavelength    dispersion\n")
             for wl, d in zip(wavelength, dispersion):
-                f.write(f"{wl.value}    {d.value}\n")
+                f.write(f"{wl.value:.3f}    {d.value:.3g}\n")
         
     def make_qe_curve(self, infile="nuv_qe_Hf02.csv", outfile="UVIM_NUV_QE.dat"):
         data = np.loadtxt(os.path.join(self.inputs_dir, infile), delimiter=',', skiprows=4, unpack=True)
@@ -200,10 +208,12 @@ class UVEXInputs:
         wavelength = wavelength.to(u.um) # convert to microns
 
         with open(os.path.join(self.outputs_dir, outfile), 'w') as f:
+            f.write(f"# date_modified : {np.datetime64('today', 'D').astype(str)}\n")
+            f.write(f"# orig_filename: {infile}\n")
             f.write("# wavelength_unit: um\n")
             f.write("wavelength    transmission\n")
             for wl, q in zip(wavelength, qe):
-                f.write(f"{wl.value}    {q}\n")
+                f.write(f"{wl.value:.3f}    {q:.6f}\n")
     
     def make_nuv_filter(self, infile="Materion-NUV-Design-%T.txt", outfile="UVIM_NUV_filter_response.dat"):
         data = np.loadtxt(os.path.join(self.inputs_dir, infile), unpack=True)
@@ -211,10 +221,12 @@ class UVEXInputs:
         transmission = data[1] / 100.0 # convert from percentage to fraction
 
         with open(os.path.join(self.outputs_dir, outfile), 'w') as f:
+            f.write(f"# date_modified : {np.datetime64('today', 'D').astype(str)}\n")
+            f.write(f"# orig_filename: {infile}\n")
             f.write("# wavelength_unit: nm\n")
             f.write("wavelength    transmission\n")
             for wl, trans in zip(wavelength, transmission):
-                f.write(f"{wl.value}    {trans}\n")
+                f.write(f"{wl.value:.3f}    {trans:.9g}\n")
     
     def make_dichroic_response(self, infile="dichroic_bandpass.csv", outfile="UVIM_dichroic_response.dat"):
         # Note: this same file should be used for the FUV surfaces list, too
@@ -225,6 +237,8 @@ class UVEXInputs:
         transmission = data[2] # already a fraction
         
         with open(os.path.join(self.outputs_dir, outfile), 'w') as f:
+            f.write(f"# date_modified : {np.datetime64('today', 'D').astype(str)}\n")
+            f.write(f"# orig_filename: {infile}\n")
             f.write("# wavelength_unit: um\n")
             f.write("wavelength    reflection    transmission\n")
             for wl, re, tr in zip(wavelength, reflection, transmission):
