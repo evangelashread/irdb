@@ -1,12 +1,4 @@
-# author: Evangela Shread    
-# source:     
-# date_created: 2026-02-11   
-# date_modified: 
-# status: estimated    
 # wavelength_unit: nm
-# action: transmission
-# changes:
-
 wavelength    transmission
 115.0    0.300146
 120.0    0.359919

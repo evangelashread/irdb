@@ -1,3 +1,11 @@
+# author : Evangela Shread
+# date_created : 2026-01-28
+# date_modified : 2026-03-23
+# status : development
+# changes :
+# - 2026-02-12 (ES) Created file
+# - 2026-03-23 (HE) Added metadata
+
 object: detector
 alias: DET
 name: uvex_lss_detector

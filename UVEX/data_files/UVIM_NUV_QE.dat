@@ -1,13 +1,4 @@
-# author : Evangela Shread
-# source : 
-# date_created : 2026-02-19
-# date_modified : 2026-03-06
 # wavelength_unit: um
-# action: transmission
-# changes :
-# - 2026-02-19 (ES) Created the file
-# - 2026-03-06 (ES) Populated with NUV QE curve from the ETC
-
 wavelength    transmission
 0.1    0.063567
 0.101    0.062861
