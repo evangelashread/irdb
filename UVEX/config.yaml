@@ -1,0 +1,48 @@
+# UVEX simulator configuration file
+#
+# Defines the input files (that live in /inputs directory)
+# and properties required to generate the IRDB data files
+#   
+# Units should be given in a form parseable by astropy.units e.g. OGIP
+#
+# date_created : 2026-03-23
+# date_modified : 2026-03-23
+# changes :
+# - 2026-03-23 (HE) Created the file
+
+# Telescope inputs
+telescope:
+    mirror_reflectivity_file: "mirror_reflectivity.dat"
+
+# Detector inputs
+detector: 
+    n_pixels: 4096
+    pix_size: 10 micron
+
+# Imaging inputs
+imager:
+    gap_size: 200
+    pixel_scale: 1.03 arcsec
+
+    dichroic_file: "dichroic_bandpass.csv"
+    nuv_qe_file: "nuv_qe_Hf02.csv"
+    nuv_filter_file: "Materion-NUV-Design-%T.txt"
+    fuv_filter_file: "uvex_fuv_150nmcenter_detector_20250522.csv"
+
+# Spectroscopy inputs
+lss:
+    slit_x_0: 0 deg
+    slit_y_0: 0 deg
+    
+    slit_length: 3600 arcsec
+    slit_width: 2 arcsec
+
+    spectral_efficiency_file: "zeiss_blaze_v1.txt"
+    dispersion_file: "UVEXS_Spectral_Resolution_R2000.txt"
+    filter_file: "graded_overcoat_00nm.csv"
+
+    gap_size: 100
+    pixel_scale: 0.80 arcsec
+
+
+

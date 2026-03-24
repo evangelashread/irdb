@@ -1,3 +1,11 @@
+# author : Hannah Earnshaw
+# date_created : 2026-01-28
+# date_modified : 2026-03-23
+# status : development
+# changes :
+# - 2026-01-28 (HE) Created file
+# - 2026-03-23 (HE) Updated data file locations
+
 object: instrument
 alias: INST
 name: NUV
@@ -24,4 +32,4 @@ effects:
     description: Quantum efficiency curve for the NUV detector
     class: QuantumEfficiencyCurve
     kwargs:
-        filename: UVIM_NUV_QE.dat
+        filename: data_files/UVIM_NUV_QE.dat

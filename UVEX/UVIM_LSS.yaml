@@ -1,3 +1,11 @@
+# author : Evangela Shread
+# date_created : 2026-02-26
+# date_modified : 2026-03-23
+# status : development
+# changes :
+# - 2026-02-26 (ES) Created file
+# - 2026-03-23 (HE) Updated data file locations
+
 object: instrument
 alias: INST
 name: LSS
@@ -19,13 +27,13 @@ effects:
     description: grating efficiency
     class: SpectralEfficiency
     kwargs:
-      filename: "UVIM_LSS_spectral_efficiency.fits"
+      filename: "data_files/UVIM_LSS_spectral_efficiency.fits"
 
   - name: slit_geometry
     description: slit geometry on the focal plane
     class: ApertureMask
     kwargs:
-      filename: "UVIM_LSS_slit_geometry.dat"
+      filename: "data_files/UVIM_LSS_slit_geometry.dat"
 
   - name : surfaces
     description : surfaces list for the spectroscopy mode
@@ -44,8 +52,8 @@ effects:
     description: spectral trace geometry on the focal plane
     class: SpectralTraceList
     kwargs:
-      filename: "UVIM_LSS_spectral_trace.fits"
-      dispersion_file: "UVIM_LSS_dispersion.dat"
+      filename: "data_files/UVIM_LSS_spectral_trace.fits"
+      dispersion_file: "data_files/UVIM_LSS_dispersion.dat"
 
 # LSS-specific simulation parameters
 ---
