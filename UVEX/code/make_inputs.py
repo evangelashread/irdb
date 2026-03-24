@@ -33,6 +33,7 @@ class UVEXInputs:
         # Make imager inputs
         self.make_qe_curve(infile=config['imager']['nuv_qe_file'])
         self.make_nuv_filter(infile=config['imager']['nuv_filter_file'])
+        self.make_fuv_filter(infile=config['imager']['fuv_filter_file'])
         self.make_dichroic_response(infile=config['imager']['dichroic_file'])
         
         # Load LSS parameters
@@ -226,7 +227,7 @@ class UVEXInputs:
             f.write("# wavelength_unit: nm\n")
             f.write("wavelength    transmission\n")
             for wl, trans in zip(wavelength, transmission):
-                f.write(f"{wl.value:.3f}    {trans:.9g}\n")
+                f.write(f"{wl.value:.1f}    {trans:.9g}\n")
     
     def make_dichroic_response(self, infile="dichroic_bandpass.csv", outfile="UVIM_dichroic_response.dat"):
         # Note: this same file should be used for the FUV surfaces list, too
@@ -242,7 +243,20 @@ class UVEXInputs:
             f.write("# wavelength_unit: um\n")
             f.write("wavelength    reflection    transmission\n")
             for wl, re, tr in zip(wavelength, reflection, transmission):
-                f.write(f"{wl.value}    {re}    {tr}\n")
+                f.write(f"{wl.value:.4f}    {re:.9g}    {tr:.9g}\n")
+    
+    def make_fuv_filter(self, infile="uvex_fuv_150nmcenter_detector_20250522.csv", outfile="UVIM_FUV_filter_response.dat"):
+        data = np.loadtxt(os.path.join(self.inputs_dir, infile), delimiter=',', skiprows=2, unpack=True)
+        wavelength = data[0] * u.nm
+        transmission = data[2]
+
+        with open(os.path.join(self.outputs_dir, outfile), 'w') as f:
+            f.write(f"# date_modified : {np.datetime64('today', 'D').astype(str)}\n")
+            f.write(f"# orig_filename: {infile}\n")
+            f.write("# wavelength_unit: nm\n")
+            f.write("wavelength    transmission\n")
+            for wl, trans in zip(wavelength, transmission):
+                f.write(f"{wl.value:.1f}    {trans:.9g}\n")
        
 if __name__ == "__main__":
     # run python3 make_inputs.py from command line

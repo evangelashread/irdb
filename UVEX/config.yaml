@@ -27,6 +27,7 @@ imager:
     dichroic_file: "dichroic_bandpass.csv"
     nuv_qe_file: "nuv_qe_Hf02.csv"
     nuv_filter_file: "Materion-NUV-Design-%T.txt"
+    fuv_filter_file: "uvex_fuv_150nmcenter_detector_20250522.csv"
 
 # Spectroscopy inputs
 lss:

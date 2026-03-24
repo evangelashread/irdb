@@ -11,4 +11,4 @@
 
 name             action          filename
 NUV_Filter       transmission    data_files/UVIM_NUV_filter_response.dat
-Dichroic         transmission    data_files/UVIM_dichroic_response.dat
+NUV_Dichroic     transmission    data_files/UVIM_dichroic_response.dat
