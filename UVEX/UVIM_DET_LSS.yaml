@@ -16,6 +16,7 @@ properties:
   image_plane_id: 0
   dit: "!OBS.dit"
   ndit: "!OBS.ndit"
+  gain: 1.2
 
 effects:
   - name: LSS_Detector
@@ -38,26 +39,49 @@ effects:
       pixsize_unit: mm
       angle_unit: deg
       gain_unit: electron/adu
+      
+#  - name: bias
+#    description: Constant electronic bias offset added to the readout
+#    class: Bias
+#    kwargs:
+#      value: 0
 
-  - name: dark_current
+  - name: lss_dark_current
     description: CMOS detector dark current
     class: DarkCurrent
     # [e-/s] level of dark current for each detector
     kwargs:
       value: 0.001
 
-#  - name: detector_linearity
-#    description: Linearity characteristics of H4RG chips
-#    class: LinearityCurve
-#    kwargs:
-#      filename: tbd.dat
+  - name: lss_detector_linearity
+    description: Detector linearity and saturation characteristics
+    class: LinearityCurve
+    include: False
+    kwargs:
+      filename: tbd_det_linearity.dat
 
-  - name: shot_noise
+  - name: lss_shot_noise
     description: apply poisson shot noise to images
     class: ShotNoise
 
-  - name: readout_noise
+  - name: lss_readout_noise
     description: Readout noise frames
     class: BasicReadoutNoise
     kwargs:
       noise_std: 2.0 # e-
+
+  - name: lss_inter_pixel_capacitance
+    description: Inter-pixel capacitance (IPC) convolution kernel
+    class: InterPixelCapacitance
+    include: False
+    kwargs:
+      filename: tbd_ipc_kernel.fits
+      
+  - name: lss_ad_conversion
+    description: Apply gain and convert electron count into integers
+    class: ADConversion
+    kwargs:
+       dtype: uint16
+       gain:
+           1:  "!DET.gain"
+           2:  "!DET.gain"

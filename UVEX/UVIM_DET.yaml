@@ -18,6 +18,7 @@ properties:
   image_plane_id: 0
   dit: "!OBS.dit"
   ndit: "!OBS.ndit"
+  gain: 1.2
 
 effects:
   - name: UVEX_Detector
@@ -58,7 +59,7 @@ effects:
     description: CMOS detector dark current
     class: DarkCurrent
     kwargs:
-      value: 0.003 # [e-/s]
+      value: 0.001 # [e-/s]
 
   - name: detector_linearity
     description: Detector linearity and saturation characteristics
@@ -83,10 +84,20 @@ effects:
     include: False
     kwargs:
       filename: tbd_ipc_kernel.fits
-
-  - name: reference_pixel_border
-    description: Reference pixel border handling (optional; detector-specific)
-    class: ReferencePixelBorder
-    include: False
+    
+  - name: ad_conversion
+    description: Apply gain and convert electron count into integers
+    class: ADConversion
     kwargs:
-      n_border: 4
+       dtype: uint16
+       gain:
+           1:  "!DET.gain"
+           2:  "!DET.gain"
+           3:  "!DET.gain"
+           4:  "!DET.gain"
+           5:  "!DET.gain"
+           6:  "!DET.gain"
+           7:  "!DET.gain"
+           8:  "!DET.gain"
+           9:  "!DET.gain"
+
