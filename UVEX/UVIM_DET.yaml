@@ -24,20 +24,7 @@ effects:
     class: DetectorList
     include: True
     kwargs:
-      array_dict:
-        id:      [1,    2,    3,    4,   5,   6,    7,    8,    9]
-        pixsize: [0.01, 0.01, 0.01, 0.01,0.01,0.01, 0.01, 0.01, 0.01]
-        angle:   [0.0,  0.0,  0.0,  0.0, 0.0, 0.0,  0.0,  0.0,  0.0]
-        gain:    [1.2,  1.2,  1.2,  1.2, 1.2, 1.2,  1.2,  1.2,  1.2]
-
-        # 3x3 mosaic centers in mm with 41.96 mm pitch (40.96 mm chip + 1.00 mm gap)
-        x_cen:   [-41.96, 0.0, 41.96,  -41.96, 0.0, +41.96,  -41.96, 0.0, +41.96]
-        y_cen:   [+41.96, +41.96, +41.96,  0.0, 0.0, 0.0,  -41.96, -41.96, -41.96]
-
-        # Physical chip size in mm for 4096 pixels at 0.01 mm/pixel
-        x_size:  [40.96, 40.96, 40.96, 40.96,40.96,40.96, 40.96, 40.96, 40.96]
-        y_size:  [40.96, 40.96, 40.96, 40.96,40.96,40.96, 40.96, 40.96, 40.96]
-
+      filename: data_files/UVIM_DET_layout.dat
       x_cen_unit: mm
       y_cen_unit: mm
       x_size_unit: mm

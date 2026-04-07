@@ -25,6 +25,13 @@ class UVEXInputs:
         # Load detector parameters
         self.n_pixels = config['detector']['n_pixels']
         self.pix_size = u.Quantity(config['detector']['pix_size'])
+        self.x_gap = u.Quantity(config['detector']['x_gap'])
+        self.y_gap = u.Quantity(config['detector']['y_gap'])
+        self.gain = u.Quantity(config['detector']['gain'])
+        self.angle = u.Quantity(config['detector']['angle'])
+
+        # Make detector layout
+        self.make_detector_layout()
         
         # Load imager parameters
         self.im_pixel_scale = u.Quantity(config['imager']['pixel_scale'])
@@ -257,7 +264,61 @@ class UVEXInputs:
             f.write("wavelength    transmission\n")
             for wl, trans in zip(wavelength, transmission):
                 f.write(f"{wl.value:.1f}    {trans:.9g}\n")
-       
+
+    def make_detector_layout(self, outfile="UVIM_DET_layout.dat"):
+        # active detector size in mm
+        det_size = (self.n_pixels * self.pix_size).to(u.mm).value
+
+        # gaps in mm
+        gx = self.x_gap.to(u.mm).value
+        gy = self.y_gap.to(u.mm).value
+
+        # per-detector values
+        pixsize = self.pix_size.to(u.mm).value
+        gain = self.gain.to(u.electron / u.adu).value
+        angle = self.angle.to(u.deg).value
+
+        # center-to-center pitch
+        pitch_x = det_size + gx
+        pitch_y = det_size + gy
+
+        # detector centers, row-major: A1 A2 A3 / B1 B2 B3 / C1 C2 C3
+        x_centers = [-pitch_x, 0.0, pitch_x]
+        y_centers = [pitch_y, 0.0, -pitch_y]
+        names = [["A1", "A2", "A3"],
+                 ["B1", "B2", "B3"],
+                 ["C1", "C2", "C3"]]
+
+        with open(os.path.join(self.outputs_dir, outfile), "w") as f:
+            # metadata header
+            f.write("# author: O. Adegoke\n")
+            f.write("# sources:\n")
+            f.write("# date_created: 2026-03-30\n")
+            f.write(f"# date_modified: {np.datetime64('today', 'D').astype(str)}\n")
+            f.write("\n")
+
+            # column header
+            f.write("id     x_cen      y_cen     x_size   y_size     pixsize  angle  gain   name\n")
+
+            # detector rows
+            det_id = 1
+            for i, y in enumerate(y_centers):
+                for j, x in enumerate(x_centers):
+
+                    f.write(
+                        f"{det_id:>2d}   "
+                        f"{x:>8.2f}   "
+                        f"{y:>8.2f}   "
+                        f"{det_size:>6.2f}   "
+                        f"{det_size:>6.2f}   "
+                        f"{pixsize:>6.2f}   "
+                        f"{angle:>6.1f}   "
+                        f"{gain:>5.2f}   "
+                        f"{names[i][j]}\n"
+                    )
+                    det_id += 1
+        
+    
 if __name__ == "__main__":
     # run python3 make_inputs.py from command line
     # for now, this just makes all input files at once
