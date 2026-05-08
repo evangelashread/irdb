@@ -17,7 +17,11 @@ telescope:
 # Detector inputs
 detector: 
     n_pixels: 4096
-    pix_size: 10 micron
+    pix_size: 0.01 mm
+    x_gap: 2.5 mm
+    y_gap: 4.0 mm
+    gain: 1.2 electron/adu
+    angle: 0.0 deg
 
 # Imaging inputs
 imager:
