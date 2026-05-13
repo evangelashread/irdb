@@ -1,10 +1,12 @@
 # author : Evangela Shread
 # date_created : 2026-01-28
-# date_modified : 2026-03-23
+# date_modified : 2026-04-13
 # status : development
 # changes :
 # - 2026-02-12 (ES) Created file
 # - 2026-03-23 (HE) Added metadata
+# - 2026-04-06 (ES) Swapped spectral and spatial directions
+# - 2026-04-13 (ES) Added off-sky position for use with slit, updated detector gap size
 
 object: detector
 alias: DET
@@ -23,15 +25,18 @@ effects:
     class: DetectorList
     include: True
     kwargs:
+      # Shift detector FoV center on-sky for off-axis LSS channel
+      fov_x_cen: 12600.0  # arcsec
+      fov_y_cen: 0.0 # arcsec
       array_dict:
         id: [1, 2]
         pixsize: [0.01, 0.01] # 10 microns / pix
         angle: [0., 0.]
         gain: [1.2, 1.2]
-        x_cen: [0., 0.]
-        y_cen: [36.086, -5.874] # two detectors oriented along the spectral direction
-        x_size: [40.96, 40.96]
+        y_cen: [0., 0.]
+        x_cen: [-5.874, 35.702] # two detectors oriented along the spectral direction
         y_size: [40.96, 40.96]
+        x_size: [40.96, 40.96]
       x_cen_unit: mm
       y_cen_unit: mm
       x_size_unit: mm
