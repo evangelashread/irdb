@@ -22,6 +22,12 @@ effects:
     kwargs:
       filename: LIST_mirrors_OTA.tbl
 
+  - name: spacecraft_pointing
+    description: Blurring due to spacecraft pointing jitter
+    class: SeeingPSF
+    kwargs:
+      fwhm: 2.0  # arcsec
+
 ---
 alias: ATMO
 description: "Fake !ATMO.location to avoid confusing ScopeSim"
