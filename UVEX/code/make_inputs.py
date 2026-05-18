@@ -21,6 +21,9 @@ class UVEXInputs:
             
         # Generate IRDB data files from given inputs
         self.make_reflectivity(infile=config['telescope']['mirror_reflectivity_file'])
+        self.make_contamination(thickness_infile=config['telescope']['contamination']['thickness_file'], 
+                                coeff_infile=config['telescope']['contamination']['absorption_coefficient_file'],
+                                stage=config['telescope']['contamination']['stage'])
         
         # Load detector parameters
         self.n_pixels = config['detector']['n_pixels']
@@ -54,7 +57,7 @@ class UVEXInputs:
         # Make LSS inputs
         self.make_slit_geometry()
         self.make_spectral_efficiency(infile=config['lss']['spectral_efficiency_file'])
-        self.make_spectral_trace(infile=config['lss']['dispersion_file'])
+        self.make_spectral_trace(indir=config['lss']['detector_psf_dir'])
         self.make_dispersion_file(infile=config['lss']['dispersion_file'])
         self.make_lss_filter_response(infile=config['lss']['filter_file'])
         
@@ -95,15 +98,14 @@ class UVEXInputs:
         # Ensure slit dimensions are in the right units
         slit_length = (self.slit_length).to(u.arcsec).value
         slit_width = (self.slit_width).to(u.arcsec).value
-        # relative to the field, located at 3.5 deg in y direction, and centered in x direction +/- 0.5 deg
-        # need four coords to define rectangular aperture
-        # x is the spatial direction, y is the spectral (to be consistent with ScopeSim)
+        # relative to the field origin, located at x=3.5 deg, y=0 deg
+        # y is the spatial direction, x is the spectral
         x_0 = (self.lss_x_0).to(u.arcsec).value
         y_0 = (self.lss_y_0).to(u.arcsec).value
-        slit_coords = np.array([[x_0 - slit_length/2, y_0 - slit_width/2],
-                                [x_0 + slit_length/2, y_0 - slit_width/2],
-                                [x_0 + slit_length/2, y_0 + slit_width/2],
-                                [x_0 - slit_length/2, y_0 + slit_width/2]])
+        slit_coords = np.array([[x_0 - slit_width/2, y_0 - slit_length/2],
+                                [x_0 + slit_width/2, y_0 - slit_length/2],
+                                [x_0 + slit_width/2, y_0 + slit_length/2],
+                                [x_0 - slit_width/2, y_0 + slit_length/2]])
         # write to dat file (allow overwrite)
         with open(os.path.join(self.outputs_dir, outfile), 'w') as f:
             f.write(f"# date_modified : {np.datetime64('today', 'D').astype(str)}\n")
@@ -113,48 +115,37 @@ class UVEXInputs:
             for x, y in zip(slit_coords[:,0], slit_coords[:,1]):
                 f.write(f"{x}    {y}\n")
         
-    def make_spectral_trace(self, slit_geometry="UVIM_LSS_slit_geometry.dat", 
-                            infile="UVEXS_Spectral_Resolution_R2000.txt", 
-                            outfile="UVIM_LSS_spectral_trace.fits",
-                            n_slit_positions=400):
-        data = np.loadtxt(os.path.join(self.inputs_dir, infile), skiprows=2, unpack=True)
-        wavelength = data[0] * u.nm
-        y_pos = data[1] * u.mm
-        wavelength = wavelength.to(u.um) # convert to microns
+    def make_spectral_trace(self, outfile="UVIM_LSS_spectral_trace.fits", indir="LSS_DET_PSF"):
+        """Create a spectral trace file for the LSS mode which encodes the distortion."""
+        det_psf_dir = os.path.abspath(os.path.join(self.inputs_dir, indir))
+        det_psf_files = [f for f in os.listdir(det_psf_dir) if f.endswith('.fits')]
+        det_psf_files = sorted(det_psf_files)
 
-        # get slit geometry in spatial direction for centering the trace
-        slit_coords = np.loadtxt(os.path.join(self.outputs_dir, slit_geometry), skiprows=4)
-        # Determine which direction is spatial (longer dimension)
-        x_extent = abs(slit_coords[:,0].max() - slit_coords[:,0].min()) * u.arcsec
-        y_extent = abs(slit_coords[:,1].max() - slit_coords[:,1].min()) * u.arcsec
-        spatial_col = 0 if x_extent > y_extent else 1  # 0=horizontal, 1=vertical
-        slit_s_min = np.min(slit_coords[:,spatial_col]) * u.arcsec
-        slit_s_max = np.max(slit_coords[:,spatial_col]) * u.arcsec
-        slit_s_center = (slit_s_min + slit_s_max) / 2
-        
-        # assume the slit is centered on detector, so 2048 pixels in each direction
-        s_min = -self.n_pixels/2 * self.lss_pixel_scale + slit_s_center
-        s_max = self.n_pixels/2 * self.lss_pixel_scale + slit_s_center
-        x_det_min = (s_min / self.lss_plate_scale).to(u.mm)
-        x_det_max = (s_max / self.lss_plate_scale).to(u.mm)
-
-        # for a long-slit spectrograph, each position in the slit creates a vertical trace
-        # this means we effectively have a grid of traces
-        s_positions = np.linspace(s_min, s_max, n_slit_positions) # in arcsec
-        x_positions = np.linspace(x_det_min, x_det_max, n_slit_positions) # in mm
-        
-        # grid w/ N_slit_positions * N_wavelengths rows
-        # y varies with wavelength, but s and x do not
-        wavelength_grid = np.tile(wavelength, n_slit_positions)
-        y_grid = np.tile(y_pos, n_slit_positions)
-        s_grid = np.repeat(s_positions, len(wavelength)) # in arcsec
-        x_grid = np.repeat(x_positions, len(wavelength)) # in mm
-        # write to fits file in the format SpectralTraceList expects
+        x_pos_det = []
+        y_pos_det = []
+        x_fld_det = []
+        y_fld_det = []
+        cen_wave_det = []
+        for f in det_psf_files:
+            hdu = fits.open(os.path.join(det_psf_dir, f))[0]
+            x_pos_det.append(hdu.header["XPOS"])
+            y_pos_det.append(hdu.header["YPOS"])
+            x_fld_det.append(hdu.header["XFLD"])
+            y_fld_det.append(hdu.header["YFLD"])
+            cen_wave_det.append(hdu.header["CEN_WAVE"])
+            
+        # 11 points along slit spatial direction, 25 points along the wavelength direction
+        # Position along slit s maps to detector position y, and wavelength maps to detector position x 
+        s_grid = (np.array(y_fld_det) * u.deg).to(u.arcsec).value # convert from deg to arcsec
+        y_grid = np.array(y_pos_det) # already in mm
+        wavelength_grid = (np.array(cen_wave_det) * u.nm).to(u.um).value # convert from nm to microns
+        x_grid = np.array(x_pos_det) # already in mm
+        # Write to fits file in the format SpectralTraceList expects
         hdu0 = fits.PrimaryHDU()
         hdu0.header["ECAT"] = 1
         hdu0.header["EDATA"] = 2
         hdu0.header["DATE"] = np.datetime64('today', 'D').astype(str)
-        hdu0.header["ORIGFILE"] = infile
+        hdu0.header["ORIGFILE"] = str(indir)
         hdu1 = fits.BinTableHDU.from_columns(
             [fits.Column(name="description", format="20A", array=["UVIM_LSS_trace"]),
             fits.Column(name="extension_id", format="I", array=[2]),
@@ -318,6 +309,54 @@ class UVEXInputs:
                     )
                     det_id += 1
         
+    def make_contamination(self, thickness_infile="contam_thickness.csv", coeff_infile="contam_absorption_coeff.txt", stage='eol'):
+        # load thickness file and num film passes to dict on component by component basis
+        thickness = {}
+        num_films = {}
+        components = {}
+        # in contam_thickness.csv each row corresponds to a different component
+        # columns are component name, bol thickness, eol thickness, number of film passes
+        with open(os.path.join(self.inputs_dir, thickness_infile), 'r', encoding='utf-8') as f:
+            lines = f.readlines()[2:] # comment and header at first two lines
+            for line in lines:
+                if line.strip():
+                    data = line.strip().split(',')
+                    dict_str = str(data[0].strip())
+                    thickness[dict_str] = {'bol': (int(data[1])*u.AA).to(u.nm), 'eol': (int(data[2])*u.AA).to(u.nm)} # convert from angstrom to nm
+                    num_films[dict_str] = int(data[3])
+        
+        components['NUV'] = ['M1', 'M2', 'M3', 'Dichroic', 'NUVSurface']
+        components['FUV'] = ['M1', 'M2', 'M3', 'Dichroic', 'FUVSurface']
+        components['LSS'] = ['M1', 'M2', 'M3', 'SM1', 'Grating', 'SM2', 'LSSSurface']
+        
+        eff_thickness = {'NUV': 0, 'FUV': 0, 'LSS': 0} # units nm
+        for inst in components.keys():
+            for comp in components[inst]:
+                if comp not in thickness:
+                    raise ValueError(f"Components must be one of 'M1', 'M2', 'M3', "
+                                    f"'Dichroic', 'NUVSurface', 'FUVSurface', 'SM1', "
+                                    f"'Grating', 'SM2', 'LSSSurface' and received {comp}")
+                else:
+                    eff_thickness[inst] += thickness[comp][stage] * num_films[comp]
+
+        # coefficients per nm wavelength
+        data = np.genfromtxt(os.path.join(self.inputs_dir, coeff_infile), delimiter=None)
+        wave = data[:,0] * u.nm
+        abs_coeff = data[:,1] / u.nm
+
+        for inst in ('NUV', 'FUV', 'LSS'):
+            outfile = 'UVIM_' + inst + '_contamination.dat'
+            response = np.exp(-(abs_coeff * eff_thickness[inst]).value)
+            with open(os.path.join(self.outputs_dir, outfile), 'w') as f:
+                f.write(f"# date_modified : {np.datetime64('today', 'D').astype(str)}\n")
+                f.write(f"# stage: {stage}\n")
+                f.write(f"# orig_filename: {thickness_infile}  {coeff_infile}\n")
+                f.write("# action: transmission\n")
+                f.write("# wavelength_unit: nm\n")
+                f.write(" \n")
+                f.write("wavelength    transmission\n")
+                for wl, r in zip(wave, response):
+                    f.write(f"{wl.value:.1f}    {r:.9g}\n")
     
 if __name__ == "__main__":
     # run python3 make_inputs.py from command line

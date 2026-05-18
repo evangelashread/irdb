@@ -1,10 +1,12 @@
 # author : Evangela Shread
 # date_created : 2026-02-26
-# date_modified : 2026-03-23
+# date_modified : 2026-04-09
 # status : development
 # changes :
 # - 2026-02-26 (ES) Created file
 # - 2026-03-23 (HE) Updated data file locations
+# - 2026-04-06 (ES) Added custom PSF effects
+# - 2026-04-09 (ES) Updated PSF effects to include oversampling options
 
 object: instrument
 alias: INST
@@ -34,6 +36,7 @@ effects:
     class: ApertureMask
     kwargs:
       filename: "data_files/UVIM_LSS_slit_geometry.dat"
+      buffer: 12 # buffer in arcsec to add in the spectral direction for convolution before applying the slit mask
 
   - name : surfaces
     description : surfaces list for the spectroscopy mode
@@ -41,12 +44,27 @@ effects:
     kwargs :
         filename : "LIST_surfaces_LSS.tbl"
 
-  - name: psf
-    description: PSF on the detector (for now ignoring the slit PSF)
-    class: SeeingPSF # simple Gaussian PSF
+# PSF effects
+# oversample_flag: If True, oversample the image before convolution and downsample after (memory intensive but can improve accuracy)
+# oversampling: Factor by which to oversample the image for convolution; the PSF is sampled to this resolution as well.
+#               This must divide into 10 (the PSF oversampling factor) and it must be <= 10
+  - name: detector_psf
+    description: PSF on the detector
+    class: LSSDetectorPSF
+    include: True
     kwargs:
-      fwhm: 2
-      fwhm_unit: arcsec
+      directory: "LSS_DET_PSF"
+      oversampling: 2
+      oversample_flag: True
+
+  - name: slit_psf
+    description: PSF at the slit
+    class: SlitPSF
+    include: True
+    kwargs:
+      directory: "LSS_SLIT_PSF"
+      oversampling: 2
+      oversample_flag: True
 
   - name: spectral_traces 
     description: spectral trace geometry on the focal plane
