@@ -53,7 +53,9 @@ class UVEXInputs:
         self.slit_width = u.Quantity(config['lss']['slit_width'])
         self.lss_pixel_scale = u.Quantity(config['lss']['pixel_scale'])
         self.lss_plate_scale = self.lss_pixel_scale / self.pix_size
-
+        self.lss_wave_min = u.Quantity(config['lss']['wave_min'])
+        self.lss_wave_max = u.Quantity(config['lss']['wave_max'])
+        
         # Make LSS inputs
         self.make_slit_geometry()
         self.make_spectral_efficiency(infile=config['lss']['spectral_efficiency_file'])
@@ -186,6 +188,10 @@ class UVEXInputs:
         data = np.loadtxt(os.path.join(self.inputs_dir, infile), skiprows=1, unpack=True, delimiter=",")
         wavelength = data[0] * u.nm
         transmission = data[1] / 100.0 # convert from percentage to fraction
+        
+        if wavelength[-1] < self.lss_wave_max:
+            wavelength = np.append(wavelength, self.lss_wave_max)
+            transmission = np.append(transmission, transmission[-1])
 
         with open(os.path.join(self.outputs_dir, outfile), 'w') as f:
             f.write(f"# date_modified : {np.datetime64('today', 'D').astype(str)}\n")
