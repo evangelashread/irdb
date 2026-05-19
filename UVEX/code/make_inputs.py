@@ -62,7 +62,19 @@ class UVEXInputs:
         self.make_spectral_trace(indir=config['lss']['detector_psf_dir'])
         self.make_dispersion_file(infile=config['lss']['dispersion_file'])
         self.make_lss_filter_response(infile=config['lss']['filter_file'])
-        
+
+        # Load LSS detector parameters
+        self.lss_n_pixels = config['lss_detector']['n_pixels']
+        self.lss_pix_size = u.Quantity(config['lss_detector']['pix_size'])
+        self.lss_x_gap = u.Quantity(config['lss_detector']['x_gap'])
+        self.lss_gain = u.Quantity(config['lss_detector']['gain'])
+        self.lss_angle = u.Quantity(config['lss_detector']['angle'])
+        self.lss_x1_cen = u.Quantity(config['lss_detector']['x1_cen'])
+        self.lss_y1_cen = u.Quantity(config['lss_detector']['y1_cen'])
+
+        # Make LSS detector layout
+        self.make_detector_layout_lss()
+                
     def make_reflectivity(self, infile="mirror_reflectivity.dat", outfile="mirror_reflectivity.dat"):
         # For now, straight up copy the file over
         # We'll make a parser once new technical data comes in
@@ -314,6 +326,50 @@ class UVEXInputs:
                         f"{names[i][j]}\n"
                     )
                     det_id += 1
+
+    def make_detector_layout_lss(self, outfile="UVIM_DET_LSS_layout.dat"):
+        # active detector size in mm
+        det_size = (self.lss_n_pixels * self.lss_pix_size).to(u.mm).value
+
+        # only x-gap is used for LSS
+        gx = self.lss_x_gap.to(u.mm).value
+
+        # per-detector values
+        pixsize = self.lss_pix_size.to(u.mm).value
+        gain = self.lss_gain.to(u.electron / u.adu).value
+        angle = self.lss_angle.to(u.deg).value
+
+        # preserve off-center placement of LSS1 from config
+        x1 = self.lss_x1_cen.to(u.mm).value
+        y1 = self.lss_y1_cen.to(u.mm).value
+
+        # LSS2 is placed to the right of LSS1 by detector width + gap
+        x2 = x1 + det_size + gx
+        y2 = y1
+
+        names = ["LSS1", "LSS2"]
+        centers = [(x1, y1), (x2, y2)]
+
+        with open(os.path.join(self.outputs_dir, outfile), "w") as f:
+            f.write("# author: O. Adegoke\n")
+            f.write("# sources:\n")
+            f.write("# date_created: 2026-05-18\n")
+            f.write(f"# date_modified: {np.datetime64('today', 'D').astype(str)}\n")
+            f.write("\n")
+            f.write("id    x_cen       y_cen     x_size   y_size     pixsize  angle  gain   name\n")
+
+            for det_id, ((x, y), name) in enumerate(zip(centers, names), start=1):
+                f.write(
+                    f"{det_id:>2d}   "
+                    f"{x:>8.4f}   "
+                    f"{y:>8.4f}   "
+                    f"{det_size:>6.2f}   "
+                    f"{det_size:>6.2f}   "
+                    f"{pixsize:>7.2f}   "
+                    f"{angle:>5.1f}   "
+                    f"{gain:>5.2f}   "
+                    f"{name}\n"
+                )
         
     def make_contamination(self, thickness_infile="contam_thickness.csv", coeff_infile="contam_absorption_coeff.txt", stage='eol'):
         # load thickness file and num film passes to dict on component by component basis
