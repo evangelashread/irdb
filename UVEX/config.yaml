@@ -53,5 +53,12 @@ lss:
     gap_size: 100
     pixel_scale: 0.80 arcsec
 
-
+lss_detector:
+    n_pixels: 4096
+    pix_size: 0.01 mm
+    x_gap: 0.616 mm
+    gain: 1.2 electron/adu
+    angle: 0.0 deg
+    x1_cen: -5.874 mm
+    y1_cen: 0.0 mm
 
