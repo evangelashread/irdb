@@ -1,4 +1,4 @@
-# date_modified : 2026-03-23
+# date_modified : 2026-05-19
 # orig_filename: graded_overcoat_00nm.csv
 # wavelength_unit: nm
 wavelength    transmission
@@ -21,3 +21,4 @@ wavelength    transmission
 265.0    0.716548
 285.0    0.691579
 305.0    0.626997
+365.0    0.626997

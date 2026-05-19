@@ -44,6 +44,9 @@ lss:
     
     slit_length: 3600 arcsec
     slit_width: 2 arcsec
+    
+    wave_min: 115 nm
+    wave_max: 365 nm
 
     spectral_efficiency_file: "zeiss_blaze_v1.txt"
     dispersion_file: "UVEXS_Spectral_Resolution_R2000.txt"
