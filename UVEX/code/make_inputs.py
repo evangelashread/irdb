@@ -245,13 +245,22 @@ class UVEXInputs:
             for wl, trans in zip(wavelength, transmission):
                 f.write(f"{wl.value:.1f}    {trans:.9g}\n")
     
-    def make_dichroic_response(self, infile="dichroic_bandpass.csv", outfile="UVIM_dichroic_response.dat"):
+    def make_dichroic_response(self, infile="135_180nm_UVEX_Dichroic_vs_AOI.csv",
+                                     outfile="UVIM_dichroic_response.dat"):
         # Note: this same file should be used for the FUV surfaces list, too
-        data = np.loadtxt(os.path.join(self.inputs_dir, infile), delimiter=',', skiprows=4, unpack=True)
-        wavelength = data[0] * u.nm
-        wavelength = wavelength.to(u.um) # convert to microns
-        reflection = data[1]
-        transmission = data[2] # already a fraction
+        if 'AOI' in infile:
+            # Different unpacking for this input file format
+            data = np.loadtxt(os.path.join(self.inputs_dir, infile), delimiter=',', skiprows=6, unpack=True)
+            wavelength = data[0] * u.nm
+            wavelength = wavelength.to(u.um) # convert to microns
+            reflection = np.average(data[1:6], axis=0) / 100. # Convert to fraction
+            transmission = np.average(data[6:11], axis=0) / 100. # Convert to fraction
+        else:
+            data = np.loadtxt(os.path.join(self.inputs_dir, infile), delimiter=',', skiprows=4, unpack=True)
+            wavelength = data[0] * u.nm
+            wavelength = wavelength.to(u.um) # convert to microns
+            reflection = data[1]
+            transmission = data[2] # already a fraction
         
         with open(os.path.join(self.outputs_dir, outfile), 'w') as f:
             f.write(f"# date_modified : {np.datetime64('today', 'D').astype(str)}\n")
@@ -259,7 +268,7 @@ class UVEXInputs:
             f.write("# wavelength_unit: um\n")
             f.write("wavelength    reflection    transmission\n")
             for wl, re, tr in zip(wavelength, reflection, transmission):
-                f.write(f"{wl.value:.4f}    {re:.9g}    {tr:.9g}\n")
+                f.write(f"{wl.value:.4f}        {re:.6f}      {tr:.6f}\n")
     
     def make_fuv_filter(self, infile="uvex_fuv_150nmcenter_detector_20250522.csv", outfile="UVIM_FUV_filter_response.dat"):
         data = np.loadtxt(os.path.join(self.inputs_dir, infile), delimiter=',', skiprows=2, unpack=True)

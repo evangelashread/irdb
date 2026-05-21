@@ -32,7 +32,7 @@ imager:
     gap_size: 200
     pixel_scale: 1.03 arcsec
 
-    dichroic_file: "dichroic_bandpass.csv"
+    dichroic_file: "135_180nm_UVEX_Dichroic_vs_AOI.csv"
     nuv_qe_file: "nuv_qe_Hf02.csv"
     nuv_filter_file: "Materion-NUV-Design-%T.txt"
     fuv_filter_file: "uvex_fuv_150nmcenter_detector_20250522.csv"
