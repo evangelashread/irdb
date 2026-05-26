@@ -8,6 +8,7 @@
 # - 2026-04-06 (ES) Swapped spectral and spatial directions
 # - 2026-04-13 (ES) Added off-sky position for use with slit, updated detector gap size
 # - 2026-05-18 (OA) Implemented a data file for the coordinates of the detectors
+# - 2026-05-26 (ES) Reference instrument properties for detector center in sky coordinates
 
 object: detector
 alias: DET
@@ -26,10 +27,9 @@ effects:
     class: DetectorList
     include: True
     kwargs:
-      # Shift detector FoV center on-sky for off-axis LSS channel
-      fov_x_cen: 12600.0  # arcsec
-      fov_y_cen: 0.0 # arcsec
       filename: data_files/UVIM_DET_LSS_layout.dat
+      fov_x_cen: "!INST.fov_x0" # [arcsec]
+      fov_y_cen: "!INST.fov_y0" # [arcsec]
       x_cen_unit: mm
       y_cen_unit: mm
       x_size_unit: mm
