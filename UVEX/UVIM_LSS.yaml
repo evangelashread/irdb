@@ -7,6 +7,7 @@
 # - 2026-03-23 (HE) Updated data file locations
 # - 2026-04-06 (ES) Added custom PSF effects
 # - 2026-04-09 (ES) Updated PSF effects to include oversampling options
+# - 2026-05-26 (ES) Added properties for slit center in sky coordinates
 
 object: instrument
 alias: INST
@@ -17,6 +18,9 @@ properties:
   pixel_scale: 0.80  # arcsec / pixel
   plate_scale: 80   # arcsec / mm
   decouple_detector_from_sky_headers: True  # needed for slit spectroscopy
+  # Location of slit with respect to sky origin
+  fov_x0: 12600.0  # [arcsec]
+  fov_y0: 0.0 # [arcsec]
 
 effects:
   - name: relay_optics
@@ -33,7 +37,7 @@ effects:
 
   - name: slit_geometry
     description: slit geometry on the focal plane
-    class: ApertureMask
+    class: SlitMask
     kwargs:
       filename: "data_files/UVIM_LSS_slit_geometry.dat"
       buffer: 12 # buffer in arcsec to add in the spectral direction for convolution before applying the slit mask
@@ -47,7 +51,7 @@ effects:
 # PSF effects
 # oversample_flag: If True, oversample the image before convolution and downsample after (memory intensive but can improve accuracy)
 # oversampling: Factor by which to oversample the image for convolution; the PSF is sampled to this resolution as well.
-#               This must divide into 10 (the PSF oversampling factor) and it must be <= 10
+#               This must divide into 10 (the PSF oversampling factor) and it must be <= 10, so options are 1,2,5,10
   - name: detector_psf
     description: PSF on the detector
     class: LSSDetectorPSF
