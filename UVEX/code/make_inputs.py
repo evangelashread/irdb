@@ -87,7 +87,6 @@ class UVEXInputs:
         spec_eff_dict = {"wavelength": spec_eff[:, 0] * u.nm, "efficiency": spec_eff[:, 1]}
         # convert from nm to microns
         spec_eff_dict["wavelength"] = spec_eff_dict["wavelength"].to(u.um).value
-
         # only one trace
         # required fits structure is located in spectral_efficiency in scopesim
         hdu0 = fits.PrimaryHDU()
@@ -137,23 +136,30 @@ class UVEXInputs:
 
         x_pos_det = []
         y_pos_det = []
-        x_fld_det = []
+        #x_fld_det = []
         y_fld_det = []
         cen_wave_det = []
         for f in det_psf_files:
             hdu = fits.open(os.path.join(det_psf_dir, f))[0]
             x_pos_det.append(hdu.header["XPOS"])
             y_pos_det.append(hdu.header["YPOS"])
-            x_fld_det.append(hdu.header["XFLD"])
+            #x_fld_det.append(hdu.header["XFLD"])
             y_fld_det.append(hdu.header["YFLD"])
             cen_wave_det.append(hdu.header["CEN_WAVE"])
-            
+        
+        cen_wave_det, y_fld_det = np.array(cen_wave_det), np.array(y_fld_det)
+        x_pos_det, y_pos_det = np.array(x_pos_det), np.array(y_pos_det)
+        sortidx = np.lexsort((cen_wave_det, y_fld_det))
+        cen_wave_det, y_fld_det = cen_wave_det[sortidx], y_fld_det[sortidx]
+        x_pos_det, y_pos_det = x_pos_det[sortidx], y_pos_det[sortidx]
+        
         # 11 points along slit spatial direction, 25 points along the wavelength direction
         # Position along slit s maps to detector position y, and wavelength maps to detector position x 
         s_grid = (np.array(y_fld_det) * u.deg).to(u.arcsec).value # convert from deg to arcsec
         y_grid = np.array(y_pos_det) # already in mm
         wavelength_grid = (np.array(cen_wave_det) * u.nm).to(u.um).value # convert from nm to microns
         x_grid = np.array(x_pos_det) # already in mm
+        
         # Write to fits file in the format SpectralTraceList expects
         hdu0 = fits.PrimaryHDU()
         hdu0.header["ECAT"] = 1
@@ -173,7 +179,7 @@ class UVEXInputs:
             fits.Column(name="y", format="E", array=y_grid)]
         )
         hdu2.header["EXTNAME"] = "UVIM_LSS_trace"
-        hdu2.header["DISPDIR"] = "y"
+        hdu2.header["DISPDIR"] = "x"
         hdu2.header["TUNIT1"] = "um"
         hdu2.header["TUNIT2"] = "arcsec"
         hdu2.header["TUNIT3"] = "mm"
