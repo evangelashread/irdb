@@ -1,11 +1,12 @@
 # author : Hannah Earnshaw
 # date_created : 2026-01-28
-# date_modified : 2026-03-23
+# date_modified : 2026-06-12
 # status : development
 # changes :
 # - 2026-01-28 (HE) Created file
 # - 2026-03-05 (OA) Created detector array and added effects
 # - 2026-03-23 (HE) Added metadata
+# - 2026-06-12 (HE) Added linearity and Si bandgap
 
 object: detector
 alias: DET
@@ -42,6 +43,12 @@ effects:
 #    kwargs:
 #      value: 0
 
+  - name: si_bandgap
+    description: Si band gap at ~1.1 um
+    class: QuantumEfficiencyCurve
+    kwargs:
+      filename: data_files/Si_bandgap.dat
+
   - name: dark_current
     description: CMOS detector dark current
     class: DarkCurrent
@@ -51,9 +58,8 @@ effects:
   - name: detector_linearity
     description: Detector linearity and saturation characteristics
     class: LinearityCurve
-    include: False
     kwargs:
-      filename: tbd_det_linearity.dat
+      filename: data_files/UVIM_DET_linearity.dat
 
   - name: shot_noise
     description: Apply poisson shot noise to images
