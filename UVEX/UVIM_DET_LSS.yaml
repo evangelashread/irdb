@@ -1,6 +1,6 @@
 # author : Evangela Shread
 # date_created : 2026-01-28
-# date_modified : 2026-04-13
+# date_modified : 2026-06-12
 # status : development
 # changes :
 # - 2026-02-12 (ES) Created file
@@ -9,6 +9,7 @@
 # - 2026-04-13 (ES) Added off-sky position for use with slit, updated detector gap size
 # - 2026-05-18 (OA) Implemented a data file for the coordinates of the detectors
 # - 2026-05-26 (ES) Reference instrument properties for detector center in sky coordinates
+# - 2026-06-12 (HE) Added linearity and Si bandgap
 
 object: detector
 alias: DET
@@ -44,6 +45,12 @@ effects:
 #    kwargs:
 #      value: 0
 
+  - name: si_bandgap
+    description: Si band gap at ~1.1 um
+    class: QuantumEfficiencyCurve
+    kwargs:
+      filename: data_files/Si_bandgap.dat
+
   - name: lss_dark_current
     description: CMOS detector dark current
     class: DarkCurrent
@@ -54,9 +61,8 @@ effects:
   - name: lss_detector_linearity
     description: Detector linearity and saturation characteristics
     class: LinearityCurve
-    include: False
     kwargs:
-      filename: tbd_det_linearity.dat
+      filename: data_files/UVIM_DET_linearity.dat
 
   - name: lss_shot_noise
     description: apply poisson shot noise to images
