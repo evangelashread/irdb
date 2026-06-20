@@ -26,9 +26,11 @@ effects:
   - name: spacecraft_pointing
     description: Blurring due to spacecraft pointing jitter
     class: SpacecraftPointing
+    include: True
     kwargs:
-      fwhm: 2.0
+      fwhm: 2
       fwhm_unit: arcsec
+      oversampling: 10
 
 ---
 alias: ATMO

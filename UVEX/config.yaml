@@ -53,8 +53,8 @@ lss:
     filter_file: "graded_overcoat_00nm.csv"
     detector_psf_dir: "LSS_DET_PSF"
 
-    gap_size: 100
     pixel_scale: 0.80 arcsec
+    y_distortion: True
 
 lss_detector:
     n_pixels: 4096

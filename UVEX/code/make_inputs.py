@@ -55,6 +55,7 @@ class UVEXInputs:
         self.lss_plate_scale = self.lss_pixel_scale / self.pix_size
         self.lss_wave_min = u.Quantity(config['lss']['wave_min'])
         self.lss_wave_max = u.Quantity(config['lss']['wave_max'])
+        self.y_distortion = bool(config['lss']['y_distortion'])
         
         # Make LSS inputs
         self.make_slit_geometry()
@@ -129,7 +130,8 @@ class UVEXInputs:
                 f.write(f"{x}    {y}\n")
         
     def make_spectral_trace(self, outfile="UVIM_LSS_spectral_trace.fits", indir="LSS_DET_PSF"):
-        """Create a spectral trace file for the LSS mode which encodes the distortion."""
+        """Create a spectral trace file for the LSS mode which encodes the distortion along the slit spatial axis."""
+        
         det_psf_dir = os.path.abspath(os.path.join(self.inputs_dir, indir))
         det_psf_files = [f for f in os.listdir(det_psf_dir) if f.endswith('.fits')]
         det_psf_files = sorted(det_psf_files)
@@ -155,11 +157,21 @@ class UVEXInputs:
         
         # 11 points along slit spatial direction, 25 points along the wavelength direction
         # Position along slit s maps to detector position y, and wavelength maps to detector position x 
-        s_grid = (np.array(y_fld_det) * u.deg).to(u.arcsec).value # convert from deg to arcsec
-        y_grid = np.array(y_pos_det) # already in mm
-        wavelength_grid = (np.array(cen_wave_det) * u.nm).to(u.um).value # convert from nm to microns
-        x_grid = np.array(x_pos_det) # already in mm
-        
+        if self.y_distortion:
+            s_grid = (np.array(y_fld_det) * u.deg).to(u.arcsec).value # convert from deg to arcsec
+            y_grid = np.array(y_pos_det) # already in mm
+            wavelength_grid = (np.array(cen_wave_det) * u.nm).to(u.um).value # convert from nm to microns
+            x_grid = np.array(x_pos_det) # already in mm
+        else:
+            unique_xi = np.unique(y_fld_det)
+            ids_xi = [25*i for i in range(11)]
+            my, by = np.polyfit(unique_xi, y_pos_det[ids_xi],1)
+            y_grid = np.repeat(my * unique_xi + by, 25)
+            s_grid = (np.array(y_fld_det) * u.deg).to(u.arcsec).value
+            wave_arr = (np.array(cen_wave_det) * u.nm).to(u.um).value
+            wavelength_grid = (np.array(cen_wave_det) * u.nm).to(u.um).value
+            x_grid = np.array(x_pos_det)
+
         # Write to fits file in the format SpectralTraceList expects
         hdu0 = fits.PrimaryHDU()
         hdu0.header["ECAT"] = 1
