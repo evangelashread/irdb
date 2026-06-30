@@ -40,7 +40,8 @@ effects:
     class: UVEXSlitMask
     kwargs:
       filename: "data_files/UVIM_LSS_slit_geometry.dat"
-      oversampling: 10
+      oversampling_x: 10
+      oversampling_y: 10
       buffer: 12.2 # Half size arcsec buffer to add in the spectral direction (REQUIRED for accuracte convolution at the slit before applying the slit mask)
       # Value tuned so that
       #     (1) Image subtends an exact pixel count at native resolution
@@ -91,3 +92,10 @@ properties:
     wave_mid: 0.2350 
     wave_max: 0.3550
     wave_unit: um
+
+  computing:
+    crop_y: 40. # Exact arcsec y coordinates bounding the region of interest
+    crop_unit: arcsec
+  # TODO: figure out why this doesn't work as expected...
+  #  chunk_size : 256
+  #  max_segment_size : 1024
