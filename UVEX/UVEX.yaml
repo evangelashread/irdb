@@ -30,8 +30,6 @@ effects:
     kwargs:
       fwhm: 2
       fwhm_unit: arcsec
-      oversampling_x: 10
-      oversampling_y: 10
 
 ---
 alias: ATMO
