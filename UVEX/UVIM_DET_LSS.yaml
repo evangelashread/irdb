@@ -54,6 +54,7 @@ effects:
   - name: lss_dark_current
     description: CMOS detector dark current
     class: DarkCurrent
+    include: True
     # [e-/s] level of dark current for each detector
     kwargs:
       value: 0.001
@@ -67,10 +68,12 @@ effects:
   - name: lss_shot_noise
     description: apply poisson shot noise to images
     class: ShotNoise
+    include: True
 
   - name: lss_readout_noise
     description: Readout noise frames
     class: BasicReadoutNoise
+    include: True
     kwargs:
       noise_std: 2.0 # e-
 
@@ -84,6 +87,7 @@ effects:
   - name: lss_ad_conversion
     description: Apply gain and convert electron count into integers
     class: ADConversion
+    include: True
     kwargs:
        dtype: uint16
        gain:

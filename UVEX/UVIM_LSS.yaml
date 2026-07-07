@@ -19,8 +19,9 @@ properties:
   plate_scale: 80   # arcsec / mm
   decouple_detector_from_sky_headers: True  # needed for slit spectroscopy
   # Location of slit with respect to sky origin
-  fov_x0: 12600.0  # [arcsec]
-  fov_y0: 0.0 # [arcsec]
+  fov_x0: 12600.0
+  fov_y0: 0.0
+  fov_unit: arcsec
 
 effects:
   - name: relay_optics
@@ -37,10 +38,9 @@ effects:
 
   - name: slit_geometry
     description: slit geometry on the focal plane
-    class: SlitMask
+    class: UVEXSlitMask
     kwargs:
       filename: "data_files/UVIM_LSS_slit_geometry.dat"
-      buffer: 12 # buffer in arcsec to add in the spectral direction for convolution before applying the slit mask
 
   - name : surfaces
     description : surfaces list for the spectroscopy mode
@@ -48,27 +48,19 @@ effects:
     kwargs :
         filename : "LIST_surfaces_LSS.tbl"
 
-# PSF effects
-# oversample_flag: If True, oversample the image before convolution and downsample after (memory intensive but can improve accuracy)
-# oversampling: Factor by which to oversample the image for convolution; the PSF is sampled to this resolution as well.
-#               This must divide into 10 (the PSF oversampling factor) and it must be <= 10, so options are 1,2,5,10
   - name: detector_psf
     description: PSF on the detector
     class: LSSDetectorPSF
     include: True
     kwargs:
       directory: "LSS_DET_PSF"
-      oversampling: 2
-      oversample_flag: True
-
+      
   - name: slit_psf
     description: PSF at the slit
     class: SlitPSF
     include: True
     kwargs:
       directory: "LSS_SLIT_PSF"
-      oversampling: 2
-      oversample_flag: True
 
   - name: spectral_traces 
     description: spectral trace geometry on the focal plane
@@ -76,6 +68,16 @@ effects:
     kwargs:
       filename: "data_files/UVIM_LSS_spectral_trace.fits"
       dispersion_file: "data_files/UVIM_LSS_dispersion.dat"
+
+  - name: oversample_image
+    description: oversample the image in the spatial directions for subpixel accuracy
+    class: Oversample
+    include: True
+
+  - name: downsample_image
+    description: downsample the image to native pixel resolution after it has been oversampled
+    class: Downsample
+    include: True
 
 # LSS-specific simulation parameters
 ---
@@ -86,9 +88,27 @@ description: simulation parameters for UVEX LSS spectroscopy run
 
 properties:
   spectral:
-    spectral_bin_width: 8.2e-5  # microns, estimate from ETC
+    spectral_bin_width: 8.2e-5  # microns, estimate from ETC (I think? was it the CSR?)
     spectral_resolution: 5000
     wave_min: 0.1150   
     wave_mid: 0.2350 
     wave_max: 0.3550
     wave_unit: um
+
+  computing:
+    # If UVEX PSF effects are applied, oversampling options are: 1 (don't oversample at all), 2, 10. 
+    # If not 1, should both divide into 10 and be a multiple of 2.
+    oversampling_x: 10
+    oversampling_y: 10
+    crop_x: [-13.2, 13.2] # The arcsec bounds in spectral direction relative to slit center (REQUIRED for accurate convolution at the slit before applying the slit mask)
+                          # Value tuned so that
+                          #     (1) Image subtends an exact, odd pixel count at native resolution
+                          #     (2) Pixel width > tile size of 32
+                          #     (3) Center of image coincides with center of the slit
+
+    crop_y: [-30.,30.] # The arcsec bounds in spatial direction relative to slit center. Helps fit an oversampled image in memory.
+    crop_unit: arcsec
+
+  # TODO: figure out why this doesn't work as expected...
+  #  chunk_size : 256
+  #  max_segment_size : 1024
