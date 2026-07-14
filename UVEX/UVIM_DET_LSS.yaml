@@ -93,3 +93,7 @@ effects:
        gain:
            1:  "!DET.gain"
            2:  "!DET.gain"
+    
+  - name: lss_exposure
+    description: Expose for given exposure time DIT
+    class: ExposureIntegration
