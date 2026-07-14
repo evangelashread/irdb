@@ -93,4 +93,9 @@ effects:
            7:  "!DET.gain"
            8:  "!DET.gain"
            9:  "!DET.gain"
+    
+  - name: exposure
+    description: Expose for given exposure time DIT
+    class: ExposureIntegration
+
 
