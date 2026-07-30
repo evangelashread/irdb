@@ -35,7 +35,7 @@ imager:
     dichroic_file: "135_180nm_UVEX_Dichroic_vs_AOI.csv"
     nuv_qe_file: "nuv_qe_Hf02.csv"
     nuv_filter_file: "Materion-NUV-Design-%T.txt"
-    fuv_filter_file: "uvex_fuv_150nmcenter_detector_20250522.csv"
+    fuv_filter_file: "uvex_fuv_150nmcenter_detector_20250522_longwavelengthcorrection.csv"
 
 # Spectroscopy inputs
 lss:
