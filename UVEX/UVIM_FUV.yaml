@@ -22,10 +22,23 @@ effects:
       filename: LIST_surfaces_FUV.tbl
 
   - name: psf
-    class: SeeingPSF
+    class: SpacecraftPointing
     kwargs:
       fwhm: 2
       fwhm_unit: arcsec
 
 # No QE curve required as the filter is directly on the detector and thus incorporates QE
 
+# FUV simulation parameters
+---
+object: simulation
+alias: SIM
+name: FUV_simulation_parameters
+description: simulation parameters for UVEX FUV imaging run
+
+properties:
+  computing:
+      oversampling_x: 2
+      oversampling_y: 2
+      psf_oversampling: 10 # however much the input psfs are oversampled: don't change!
+      flux_accuracy: 1e-4

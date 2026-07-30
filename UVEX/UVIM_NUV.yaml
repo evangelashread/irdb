@@ -33,3 +33,17 @@ effects:
     class: QuantumEfficiencyCurve
     kwargs:
         filename: data_files/UVIM_NUV_QE.dat
+
+# NUV simulation parameters
+---
+object: simulation
+alias: SIM
+name: NUV_simulation_parameters
+description: simulation parameters for UVEX NUV imaging run
+
+properties:
+  computing:
+      oversampling_x: 2
+      oversampling_y: 2
+      psf_oversampling: 10 # however much the input psfs are oversampled: don't change!
+      flux_accuracy: 1e-4
