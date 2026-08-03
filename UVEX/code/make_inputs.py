@@ -288,7 +288,7 @@ class UVEXInputs:
             for wl, re, tr in zip(wavelength, reflection, transmission):
                 f.write(f"{wl.value:.4f}        {re:.6f}      {tr:.6f}\n")
     
-    def make_fuv_filter(self, infile="uvex_fuv_150nmcenter_detector_20250522.csv", outfile="UVIM_FUV_filter_response.dat"):
+    def make_fuv_filter(self, infile="uvex_fuv_150nmcenter_detector_20250522_longwavelength_correction.csv", outfile="UVIM_FUV_filter_response.dat"):
         data = np.loadtxt(os.path.join(self.inputs_dir, infile), delimiter=',', skiprows=2, unpack=True)
         wavelength = data[0] * u.nm
         transmission = data[2]
