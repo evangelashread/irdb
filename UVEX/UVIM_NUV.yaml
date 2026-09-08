@@ -44,12 +44,6 @@ effects:
       fwhm: 2
       fwhm_unit: arcsec
 
-  - name: nuv_surfaces
-    description: surfaces list for NUV imaging, including the filter and dichroic transmission
-    class: SurfaceList
-    kwargs:
-      filename: LIST_surfaces_NUV.tbl
-
   - name: qe_curve
     description: Quantum efficiency curve for the NUV detector
     class: QuantumEfficiencyCurve

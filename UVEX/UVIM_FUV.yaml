@@ -43,12 +43,6 @@ effects:
       fwhm: 2
       fwhm_unit: arcsec
 
-  - name: fuv_surfaces
-    description: surfaces list for FUV imaging, including the filter and dichroic transmission
-    class: SurfaceList
-    kwargs:
-      filename: LIST_surfaces_FUV.tbl
-
 # No QE curve required as the filter is directly on the detector and thus incorporates QE
 
 # PSF effects
