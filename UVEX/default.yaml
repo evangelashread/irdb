@@ -63,7 +63,7 @@ properties:
     seed: 9001
 
   spectral:
-    wave_min: 0.1150
-    wave_mid: 0.2350
-    wave_max: 0.3550
+    wave_min: 0.1
+    wave_mid: 0.235
+    wave_max: 1.2
     wave_unit: um
