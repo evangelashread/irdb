@@ -1,6 +1,6 @@
 # author : Hannah Earnshaw
 # date_created : 2026-01-28
-# date_modified : 2026-03-23
+# date_modified : 2026-09-03
 # status : development
 # changes :
 # - 2026-01-28 (HE) Created file
@@ -8,6 +8,7 @@
 # - 2026-06-09 (OA) Added custom PSF effects
 # - 2026-06-09 (OA) Included FoV offset of 0.5 deg
 # - 2026-06-25 (OA) Added custom vignetting effects
+# - 2026-09-03 (OA) Added spectral range description
 
 object: instrument
 alias: INST
@@ -60,5 +61,43 @@ effects:
     include: True
     kwargs:
       directory: "NUV_PSF"
-      oversampling_x: 1
-      oversampling_y: 1
+
+      wavelength_dependent: true
+      inband_max_um: 0.270
+
+      wavelength_psf_libraries:
+        - wavelength_um: 0.300
+          directory: "NUV_Out-of-Band/300nm"
+
+        - wavelength_um: 0.400
+          directory: "NUV_Out-of-Band/400nm"
+
+        - wavelength_um: 0.500
+          directory: "NUV_Out-of-Band/500nm"
+
+        - wavelength_um: 0.700
+          directory: "NUV_Out-of-Band/700nm"
+
+        - wavelength_um: 1.000
+          directory: "NUV_Out-of-Band/1000nm"
+      
+# NUV-specific simulation parameters
+---
+object: simulation
+alias: SIM
+name: NUV_simulation_parameters
+description: simulation parameters for UVEX NUV imaging
+
+properties:
+  spectral:
+    wave_min: 0.1000
+    wave_mid: 0.6000
+    wave_max: 1.1000
+    wave_unit: um
+
+  computing:
+    oversampling_x: 1
+    oversampling_y: 1
+    psf_oversampling: 10
+    flux_accuracy: 1e-4
+    tile_size: 32
