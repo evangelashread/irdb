@@ -34,6 +34,7 @@ effects:
     include: True
     kwargs:
       filename: data_files/FUV_vignetting_model_4096.fits
+      detector_layout: data_files/UVIM_DET_layout.dat
       normalize: False
       interpolate: True
 
